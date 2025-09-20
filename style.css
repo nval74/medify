@@ -1,0 +1,27 @@
+/* Custom styles for better UX */
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal {
+    transition: transform 0.3s ease-out;
+}
+
+/* Style for the active view button */
+.view-btn-active {
+    background-color: #0284c7; /* sky-600 */
+    color: white;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+/* Style for active nav link */
+.nav-link-active {
+    background-color: #0ea5e9; /* sky-500 */
+    color: white;
+}
+
+.article-filter-btn-active {
+    background-color: #0ea5e9; /* sky-500 */
+    color: white;
+    border-color: #0ea5e9;
+}

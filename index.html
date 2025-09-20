@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medify - Smart Medicine Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-sky-50 text-gray-800 font-sans antialiased">
+
+    <div id="loading-indicator" class="fixed inset-0 bg-gray-100 bg-opacity-80 flex items-center justify-center z-50 hidden">
+        <i class="fas fa-spinner fa-spin text-4xl text-sky-500"></i>
+    </div>
+
+    <div class="container mx-auto p-4 max-w-5xl">
+
+        <header class="text-center mb-6">
+            <img src="https://i.ibb.co/6n2w09t/jam-biru-dan-obat.jpg" alt="Medify Dashboard Header" class="w-full h-48 object-cover rounded-xl shadow-lg">
+            <h1 class="text-4xl font-bold text-sky-600 mt-6">Medify</h1>
+            <p class="text-gray-500">Smart Medicine Management</p>
+        </header>
+
+        <nav class="bg-white rounded-full shadow-md p-2 flex justify-center gap-2 mb-8 max-w-sm mx-auto border">
+            <button id="nav-dashboard" class="nav-link flex-1 text-center py-2 px-4 rounded-full transition-colors duration-300">
+                <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+            </button>
+            <button id="nav-info" class="nav-link flex-1 text-center py-2 px-4 rounded-full transition-colors duration-300">
+                <i class="fas fa-book-medical mr-2"></i>Informasi
+            </button>
+        </nav>
+
+        <div id="dashboard-view">
+             <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                <div class="relative w-full md:w-1/3">
+                    <input type="text" id="search-input" placeholder="Cari obat..." class="w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 pl-10 text-gray-900 focus:outline-none focus:ring-sky-500 focus:border-sky-500">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                </div>
+                <button id="add-medicine-btn" class="w-full md:w-auto bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 shadow-sm">
+                    <i class="fas fa-plus mr-2"></i>Tambah Obat Baru
+                </button>
+            </div>
+
+            <main>
+                <div id="warnings-container" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-red-100 border border-red-200 p-4 rounded-xl">
+                        <div class="flex items-center gap-3 mb-2">
+                            <i class="fas fa-calendar-times text-2xl text-red-500 w-8 text-center"></i>
+                            <h3 class="font-bold text-lg text-red-700">Sudah Kedaluwarsa</h3>
+                        </div>
+                        <div id="expired-list" class="space-y-2 pl-11">
+                             <p class="text-red-600 text-sm">Tidak ada obat yang kedaluwarsa.</p>
+                        </div>
+                    </div>
+                    <div class="bg-orange-100 border border-orange-200 p-4 rounded-xl">
+                        <div class="flex items-center gap-3 mb-2">
+                            <i class="fas fa-hourglass-half text-2xl text-orange-500 w-8 text-center"></i>
+                            <h3 class="font-bold text-lg text-orange-700">Segera Kedaluwarsa</h3>
+                        </div>
+                        <div id="expiring-soon-list" class="space-y-2 pl-11">
+                            <p class="text-orange-600 text-sm">Tidak ada obat yang akan kedaluwarsa.</p>
+                        </div>
+                    </div>
+                    <div class="bg-yellow-100 border border-yellow-200 p-4 rounded-xl">
+                        <div class="flex items-center gap-3 mb-2">
+                            <i class="fas fa-box-open text-2xl text-yellow-500 w-8 text-center"></i>
+                            <h3 class="font-bold text-lg text-yellow-700">Stok Menipis (&lt;= 5)</h3>
+                        </div>
+                        <div id="low-stock-list" class="space-y-2 pl-11">
+                            <p class="text-yellow-600 text-sm">Stok semua obat aman.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-gray-700">Semua Obat Saya</h2>
+                    <div id="view-switcher" class="flex border border-gray-300 rounded-full p-1 bg-gray-100">
+                        <button id="list-view-btn" class="view-btn px-3 py-1 rounded-full text-sm">
+                            <i class="fas fa-list"></i>
+                        </button>
+                        <button id="grid-view-btn" class="view-btn px-3 py-1 rounded-full text-sm">
+                            <i class="fas fa-th-large"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="all-medicines-container" class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                    <div id="medicine-list" class="grid gap-4">
+                        <div id="medicine-card-template" class="bg-white border border-gray-200 rounded-lg shadow-md hidden hover:shadow-lg transition-shadow overflow-hidden p-4">
+                            <img src="https://placehold.co/100x100/E0F2FE/3B82F6?text=Obat" alt="Gambar Obat" class="medicine-img object-cover rounded-md">
+                            <div class="medicine-details">
+                                <h4 class="font-bold text-lg text-sky-700 medicine-name">Nama Obat</h4>
+                                <p class="text-sm text-gray-500 mb-1">Kedaluwarsa: <span class="font-medium text-gray-600 medicine-expiry">DD/MM/YYYY</span></p>
+                                <p class="text-sm text-gray-500">Stok: <span class="font-bold text-gray-800 medicine-stock">0</span></p>
+                            </div>
+                            <div class="medicine-actions">
+                                <button class="edit-btn bg-gray-200 hover:bg-yellow-400 text-gray-700 hover:text-white text-xs py-1 px-3 rounded transition-colors"><i class="fas fa-pencil-alt"></i></button>
+                                <button class="delete-btn bg-gray-200 hover:bg-red-500 text-gray-700 hover:text-white text-xs py-1 px-3 rounded transition-colors"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                        <p id="no-medicine-msg" class="text-gray-500 col-span-full text-center py-8">Anda belum menambahkan obat apapun.</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <div id="info-view" class="hidden">
+            <h2 class="text-3xl font-bold text-gray-700 mb-6 text-center">Pusat Informasi Kesehatan</h2>
+            
+            <div id="article-filters" class="flex flex-wrap justify-center gap-3 mb-8">
+                <button class="article-filter-btn article-filter-btn-active py-2 px-5 rounded-full text-sm shadow transition-colors" data-filter="semua">Semua</button>
+                <button class="article-filter-btn bg-white text-gray-600 py-2 px-5 rounded-full text-sm shadow border transition-colors" data-filter="terpopuler">Terpopuler</button>
+                <button class="article-filter-btn bg-white text-gray-600 py-2 px-5 rounded-full text-sm shadow border transition-colors" data-filter="terbaru">Terbaru</button>
+                <button class="article-filter-btn bg-white text-gray-600 py-2 px-5 rounded-full text-sm shadow border transition-colors" data-filter="tips">Tips Kesehatan</button>
+                <button class="article-filter-btn bg-white text-gray-600 py-2 px-5 rounded-full text-sm shadow border transition-colors" data-filter="panduan">Panduan Obat</button>
+            </div>
+
+            <div id="article-list" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="article-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow" data-category="panduan">
+                    <img src="https://i.ibb.co/3s9d6cM/kategori-obat.jpg" alt="Kategori Obat" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-sky-700 mb-2">Mengenal Kategori-Kategori Obat</h3>
+                        <p class="text-gray-600">Pelajari perbedaan antara obat bebas, obat bebas terbatas, hingga obat keras agar Anda tidak salah dalam menggunakannya.</p>
+                    </div>
+                </div>
+                <div class="article-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow" data-category="panduan">
+                    <img src="https://i.ibb.co/L5B1t02/obat-asli-palsu.jpg" alt="Obat Asli dan Palsu" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-sky-700 mb-2">Cara Membedakan Obat Asli dan Palsu</h3>
+                        <p class="text-gray-600">Jangan sampai tertipu! Kenali ciri-ciri fisik kemasan dan izin edar untuk memastikan obat yang Anda beli aman dan asli.</p>
+                    </div>
+                </div>
+                 <div class="article-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow" data-category="tips">
+                    <img src="https://i.ibb.co/k2x04zG/simpan-obat.jpg" alt="Cara Menyimpan Obat" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-sky-700 mb-2">Tips Menyimpan Obat dengan Benar</h3>
+                        <p class="text-gray-600">Penyimpanan yang salah dapat merusak efektivitas obat. Ikuti panduan ini untuk menjaga kualitas obat Anda di rumah.</p>
+                    </div>
+                </div>
+                 <div class="article-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow" data-category="panduan">
+                    <img src="https://i.ibb.co/K75z0f6/label-obat.jpg" alt="Membaca Label Obat" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-sky-700 mb-2">Pentingnya Membaca Label Obat</h3>
+                        <p class="text-gray-600">Setiap informasi pada label kemasan obat memiliki arti penting. Pelajari cara membaca dosis, efek samping, dan peringatan.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="medicine-modal" class="fixed inset-0 z-40 flex items-center justify-center hidden">
+        <div class="modal-backdrop absolute inset-0"></div>
+        <div class="modal bg-white rounded-lg shadow-xl w-full max-w-md m-4 z-50 transform scale-95">
+            <form id="medicine-form" class="p-8 space-y-4">
+                <h2 id="modal-title" class="text-2xl font-bold text-sky-600">Tambah Obat Baru</h2>
+                <input type="hidden" id="medicine-id">
+                <div>
+                    <label for="medicine-name" class="block text-sm font-medium text-gray-700">Nama Obat</label>
+                    <input type="text" id="medicine-name" required class="mt-1 block w-full bg-gray-50 border border-gray-300 rounded-md shadow-sm py-2 px-3 text-gray-900 focus:outline-none focus:ring-sky-500 focus:border-sky-500">
+                </div>
+                <div>
+                    <label for="medicine-expiry" class="block text-sm font-medium text-gray-700">Tanggal Kedaluwarsa</label>
+                    <input type="date" id="medicine-expiry" required class="mt-1 block w-full bg-gray-50 border border-gray-300 rounded-md shadow-sm py-2 px-3 text-gray-900 focus:outline-none focus:ring-sky-500 focus:border-sky-500">
+                </div>
+                <div>
+                    <label for="medicine-stock" class="block text-sm font-medium text-gray-700">Jumlah Stok</label>
+                    <input type="number" id="medicine-stock" required min="0" class="mt-1 block w-full bg-gray-50 border border-gray-300 rounded-md shadow-sm py-2 px-3 text-gray-900 focus:outline-none focus:ring-sky-500 focus:border-sky-500">
+                </div>
+                <div>
+                    <label for="medicine-image-url" class="block text-sm font-medium text-gray-700">URL Gambar Obat (Opsional)</label>
+                    <input type="url" id="medicine-image-url" placeholder="https://example.com/image.png" class="mt-1 block w-full bg-gray-50 border border-gray-300 rounded-md shadow-sm py-2 px-3 text-gray-900 focus:outline-none focus:ring-sky-500 focus:border-sky-500">
+                </div>
+                <div class="flex justify-end gap-4 pt-4">
+                    <button type="button" id="cancel-modal-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-md transition duration-300">Batal</button>
+                    <button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-md transition duration-300">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="confirm-dialog" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+        <div class="modal-backdrop absolute inset-0"></div>
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm m-4 z-50 p-6 text-center">
+            <h3 id="confirm-title" class="text-lg font-bold text-gray-800 mb-2">Konfirmasi Hapus</h3>
+            <p id="confirm-message" class="text-gray-600 mb-6">Apakah Anda yakin ingin menghapus obat ini?</p>
+            <div class="flex justify-center gap-4">
+                <button id="confirm-cancel" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-md transition">Batal</button>
+                <button id="confirm-ok" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-md transition">Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js" defer></script>
+</body>
+</html>
